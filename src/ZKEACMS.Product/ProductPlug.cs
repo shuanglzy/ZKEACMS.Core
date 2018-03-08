@@ -1,4 +1,4 @@
-/* http://www.zkea.net/ Copyright 2016 ZKEASOFT http://www.zkea.net/licenses */
+﻿/* http://www.zkea.net/ Copyright 2016 ZKEASOFT http://www.zkea.net/licenses */
 using System;
 using System.Collections.Generic;
 using Easy.Mvc.Resource;
@@ -7,6 +7,8 @@ using Easy.Mvc.Route;
 using ZKEACMS.Common.Models;
 using ZKEACMS.Product.Models;
 using ZKEACMS.Product.Service;
+using Easy;
+using ZKEACMS.WidgetTemplate;
 
 namespace ZKEACMS.Product
 {
@@ -87,11 +89,33 @@ namespace ZKEACMS.Product
             yield return new PermissionDescriptor(PermissionKeys.ManageProductCategoryTag, "产品", "管理产品标签", "");
         }
 
-        public override IEnumerable<Type> WidgetServiceTypes()
+        public override IEnumerable<WidgetTemplateEntity> WidgetServiceTypes()
         {
-            yield return typeof(ProductListWidgetService);
-            yield return typeof(ProductDetailWidgetService);
-            yield return typeof(ProductCategoryWidgetService);
+            string groupName = "3.产品";
+            yield return new WidgetTemplateEntity<ProductListWidgetService>
+            {
+                Title = "产品列表",
+                GroupName = groupName,
+                PartialView = "Widget.ProductList",
+                Thumbnail = "~/Plugins/ZKEACMS.Product/Content/Image/Widget.ProductList.png",
+                Order = 1
+            };
+            yield return new WidgetTemplateEntity<ProductDetailWidgetService>
+            {
+                Title = "产品内容",
+                GroupName = groupName,
+                PartialView = "Widget.ProductDetail",
+                Thumbnail = "~/Plugins/ZKEACMS.Product/Content/Image/Widget.ProductDetail.png",
+                Order = 2
+            };
+            yield return new WidgetTemplateEntity<ProductCategoryWidgetService>
+            {
+                Title = "产品类别",
+                GroupName = groupName,
+                PartialView = "Widget.ProductCategory",
+                Thumbnail = "~/Plugins/ZKEACMS.Product/Content/Image/Widget.ProductCategory.png",
+                Order = 3
+            };
         }
 
         public override void ConfigureServices(IServiceCollection serviceCollection)
@@ -101,6 +125,22 @@ namespace ZKEACMS.Product
             serviceCollection.AddTransient<IProductCategoryTagService, ProductCategoryTagService>();
             serviceCollection.AddTransient<IProductTagService, ProductTagService>();
             serviceCollection.AddTransient<IProductImageService, ProductImageService>();
+
+            serviceCollection.Configure<ProductListWidget>(option =>
+            {
+                option.DataSourceLinkTitle = "产品列表";
+                option.DataSourceLink = "~/admin/Product";
+            });
+            serviceCollection.Configure<ProductCategoryWidget>(option =>
+            {
+                option.DataSourceLinkTitle = "产品类别";
+                option.DataSourceLink = "~/admin/ProductCategory";
+            });
+
+            serviceCollection.ConfigureMetaData<ProductCategoryWidget, ProductCategoryWidgetMedata>();
+            serviceCollection.ConfigureMetaData<ProductDetailWidget, ProductDetailWidgetMetaData>();
+            serviceCollection.ConfigureMetaData<ProductListWidget, ProductListWidgetMetaData>();
+
             serviceCollection.AddDbContext<ProductDbContext>();
         }
         

@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using ZKEACMS.Extend;
 using ZKEACMS.Page;
 using ZKEACMS.Theme;
 using ZKEACMS.Widget;
@@ -12,7 +13,7 @@ using ZKEACMS.Zone;
 
 namespace ZKEACMS.Layout
 {
-    [ViewConfigure(typeof(LayoutEntityMetaData)), Table("CMS_Layout")]
+    [Table("CMS_Layout")]
     public class LayoutEntity : EditorEntity, IImage
     {
         public const string DefaultThumbnial = "~/images/layout.jpg";
@@ -55,8 +56,8 @@ namespace ZKEACMS.Layout
             ViewConfig(m => m.ContainerClass).AsHidden();
             ViewConfig(m => m.Title).AsHidden();
             ViewConfig(m => m.LayoutName).AsTextBox().Required();            
-            ViewConfig(m => m.ImageThumbUrl).AsTextBox().AddClass(StringKeys.SelectImageClass).AddProperty("data-url", Urls.SelectMedia);
-            ViewConfig(m => m.ImageUrl).AsTextBox().AddClass(StringKeys.SelectImageClass).AddProperty("data-url", Urls.SelectMedia);
+            ViewConfig(m => m.ImageThumbUrl).AsTextBox().MediaSelector();
+            ViewConfig(m => m.ImageUrl).AsTextBox().MediaSelector();
         }
     }
 

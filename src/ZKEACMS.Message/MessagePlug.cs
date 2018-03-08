@@ -1,4 +1,4 @@
-/* 
+ï»¿/* 
  * http://www.zkea.net/ 
  * Copyright 2017 ZKEASOFT 
  * http://www.zkea.net/licenses 
@@ -10,6 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using ZKEACMS.Message.Service;
+using Easy;
+using ZKEACMS.Message.Models;
+using ZKEACMS.WidgetTemplate;
 
 namespace ZKEACMS.Message
 {
@@ -30,14 +33,14 @@ namespace ZKEACMS.Message
         {
             yield return new AdminMenu
             {
-                Title = "ÁôÑÔÆÀÂÛ",
+                Title = "ç•™è¨€è¯„è®º",
                 Icon = "glyphicon-volume-up",
                 Order = 7,
                 Children = new List<AdminMenu>
                 {
                     new AdminMenu
                     {
-                        Title = "ÁôÑÔ",
+                        Title = "ç•™è¨€",
                         Url = "~/Admin/Message",
                         Order = 1,
                         Icon = "glyphicon-volume-up",
@@ -45,7 +48,7 @@ namespace ZKEACMS.Message
                     },
                     new AdminMenu
                     {
-                        Title = "ÆÀÂÛ",
+                        Title = "è¯„è®º",
                         Url = "~/Admin/Comments",
                         Order = 2,
                         Icon = "glyphicon-comment",
@@ -59,24 +62,64 @@ namespace ZKEACMS.Message
 
         public override IEnumerable<PermissionDescriptor> RegistPermission()
         {
-            yield return new PermissionDescriptor(PermissionKeys.ViewMessage, "ÁôÑÔÆÀÂÛ", "²é¿´ÁôÑÔ", "");
-            yield return new PermissionDescriptor(PermissionKeys.ManageMessage, "ÁôÑÔÆÀÂÛ", "¹ÜÀíÁôÑÔ", "");
-            yield return new PermissionDescriptor(PermissionKeys.ViewComments, "ÁôÑÔÆÀÂÛ", "²é¿´ÆÀÂÛ", "");
-            yield return new PermissionDescriptor(PermissionKeys.ManageComments, "ÁôÑÔÆÀÂÛ", "¹ÜÀíÆÀÂÛ", "");
+            yield return new PermissionDescriptor(PermissionKeys.ViewMessage, "ç•™è¨€è¯„è®º", "æŸ¥çœ‹ç•™è¨€", "");
+            yield return new PermissionDescriptor(PermissionKeys.ManageMessage, "ç•™è¨€è¯„è®º", "ç®¡ç†ç•™è¨€", "");
+            yield return new PermissionDescriptor(PermissionKeys.ViewComments, "ç•™è¨€è¯„è®º", "æŸ¥çœ‹è¯„è®º", "");
+            yield return new PermissionDescriptor(PermissionKeys.ManageComments, "ç•™è¨€è¯„è®º", "ç®¡ç†è¯„è®º", "");
         }
 
-        public override IEnumerable<Type> WidgetServiceTypes()
+        public override IEnumerable<WidgetTemplateEntity> WidgetServiceTypes()
         {
-            yield return typeof(MessageBoxWidgetService);
-            yield return typeof(MessageWidgetService);
-            yield return typeof(CommentsWidgetService);
+            string groupName = "5.æ¶ˆæ¯";
+            yield return new WidgetTemplateEntity<CommentsWidgetService>
+            {
+                Title = "è¯„è®ºç®±",
+                GroupName = groupName,
+                PartialView = "Widget.Comments",
+                Thumbnail = "~/Plugins/ZKEACMS.Message/Content/Image/Widget.Comments.png",
+                Order = 1
+            };
+            yield return new WidgetTemplateEntity<MessageWidgetService>
+            {
+                Title = "ç•™è¨€æ¿",
+                GroupName = groupName,
+                PartialView = "Widget.Message",
+                Thumbnail = "~/Plugins/ZKEACMS.Message/Content/Image/Widget.Message.png",
+                Order = 2
+            };
+            yield return new WidgetTemplateEntity<MessageBoxWidgetService>
+            {
+                Title = "ç•™è¨€å†…å®¹",
+                GroupName = groupName,
+                PartialView = "Widget.MessageBox",
+                Thumbnail = "~/Plugins/ZKEACMS.Message/Content/Image/Widget.MessageBox.png",
+                Order = 3
+            };
         }
 
         public override void ConfigureServices(IServiceCollection serviceCollection)
         {
             serviceCollection.AddTransient<IMessageService, MessageService>();
-            serviceCollection.AddDbContext<MessageDbContext>();
             serviceCollection.AddTransient<ICommentsService, CommentsService>();
+
+            serviceCollection.ConfigureMetaData<Comments, CommentsMetadata>();
+            serviceCollection.ConfigureMetaData<CommentsWidget, CommentsWidgetMetaData>();
+            serviceCollection.ConfigureMetaData<MessageBoxWidget, MessageBoxWidgetMetaData>();
+            serviceCollection.ConfigureMetaData<MessageEntity, MessageMetaData>();
+            serviceCollection.ConfigureMetaData<MessageWidget, MessageWidgetMetaData>();
+
+            serviceCollection.Configure<MessageBoxWidget>(option =>
+            {
+                option.DataSourceLinkTitle = "ç•™è¨€";
+                option.DataSourceLink = "~/admin/Message";
+            });
+            serviceCollection.Configure<CommentsWidget>(option =>
+            {
+                option.DataSourceLinkTitle = "è¯„è®º";
+                option.DataSourceLink = "~/admin/Comments";
+            });
+
+            serviceCollection.AddDbContext<MessageDbContext>();
         }
 
         protected override void InitScript(Func<string, ResourceHelper> script)

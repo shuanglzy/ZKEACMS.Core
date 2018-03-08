@@ -1,4 +1,4 @@
-/* http://www.zkea.net/ 
+ï»¿/* http://www.zkea.net/ 
  * Copyright 2017 ZKEASOFT 
  * http://www.zkea.net/licenses 
  *
@@ -16,6 +16,9 @@ using Microsoft.Extensions.Configuration;
 using Alipay.AopSdk.F2FPay.AspnetCore;
 using ZKEACMS.Shop.Payment;
 using ZKEACMS.Account;
+using Easy;
+using ZKEACMS.Shop.Models;
+using ZKEACMS.WidgetTemplate;
 
 namespace ZKEACMS.Shop
 {
@@ -50,14 +53,14 @@ namespace ZKEACMS.Shop
         {
             yield return new AdminMenu
             {
-                Title = "µç×ÓÉÌÎñ",
+                Title = "ç”µå­å•†åŠ¡",
                 Icon = "glyphicon-shopping-cart",
                 Order = 9,
                 Children = new List<AdminMenu>
                 {
                     new AdminMenu
                     {
-                        Title = "¶©µ¥",
+                        Title = "è®¢å•",
                         Icon = "glyphicon-shopping-cart",
                         Url="~/admin/Order",
                         Order = 1,
@@ -82,11 +85,16 @@ namespace ZKEACMS.Shop
 
         public override IEnumerable<PermissionDescriptor> RegistPermission()
         {
-            yield return new PermissionDescriptor { Module = "ÉÌ³Ç", Title = "²é¿´¶©µ¥", Key = PermissionKeys.ViewOrder };
-            yield return new PermissionDescriptor { Module = "ÉÌ³Ç", Title = "¹ÜÀí¶©µ¥", Key = PermissionKeys.ManageOrder };
+            yield return new PermissionDescriptor { Module = "å•†åŸ", Title = "æŸ¥çœ‹è®¢å•", Key = PermissionKeys.ViewOrder };
+            yield return new PermissionDescriptor { Module = "å•†åŸ", Title = "ç®¡ç†è®¢å•", Key = PermissionKeys.ManageOrder };
+
+            yield return new PermissionDescriptor { Module = "å•†åŸ", Title = "æŸ¥çœ‹æ”¯ä»˜å¹³å°æ”¯ä»˜ä¿¡æ¯", Key = PermissionKeys.ViewOrderPayment };
+            yield return new PermissionDescriptor { Module = "å•†åŸ", Title = "æŸ¥çœ‹æ”¯ä»˜å¹³å°é€€æ¬¾ä¿¡æ¯", Key = PermissionKeys.ViewOrderRefund };
+            yield return new PermissionDescriptor { Module = "å•†åŸ", Title = "é€€æ¬¾", Key = PermissionKeys.RefundOrder };
+           //yield return new PermissionDescriptor { Module = "å•†åŸ", Title = "å…³é—­è®¢å•", Key = PermissionKeys.CloseOrder };
         }
 
-        public override IEnumerable<Type> WidgetServiceTypes()
+        public override IEnumerable<WidgetTemplateEntity> WidgetServiceTypes()
         {
             return null;
         }
@@ -97,6 +105,12 @@ namespace ZKEACMS.Shop
             serviceCollection.TryAddTransient<IOrderService, OrderService>();
             serviceCollection.TryAddTransient<IOrderItemService, OrderItemService>();
             serviceCollection.AddTransient<IUserCenterLinksProvider, ShopCenterLinksProvider>();
+            serviceCollection.AddTransient<IPaymentService, AliPaymentService>();
+
+            serviceCollection.ConfigureMetaData<Basket, BasketMetaData>();
+            serviceCollection.ConfigureMetaData<Order, OrderMetaData>();
+            serviceCollection.ConfigureMetaData<OrderItem, OrderItemMetaData>();
+
             serviceCollection.AddDbContext<OrderDbContext>();
 
             var configuration = new ConfigurationBuilder()

@@ -6,7 +6,9 @@
 docker run -d -p 5000:80 zkeasoft/zkeacms
 ```
 ### 发布 / Publish
+使用 Publish.cmd / Publish.sh 或者
 ```
+./dotnet restore
 ./src/ZKEACMS.WebHost/dotnet publish-zkeacms
 ```
 ### 包含运行时发布 / Publish width runtime
